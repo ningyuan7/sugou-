@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="sugou-portal" />
+        <module name="sugou-common" />
+        <module name="sugou-security" />
+        <module name="sugou-demo" />
+        <module name="sugou-mbg" />
+        <module name="sugou-admin" />
+        <module name="sugou-gateway" />
+        <module name="sugou-search" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="mall" target="17" />
+      <module name="mall-admin" target="17" />
+      <module name="mall-common" target="17" />
+      <module name="mall-demo" target="17" />
+      <module name="mall-gateway" target="17" />
+      <module name="mall-mbg" target="17" />
+      <module name="mall-portal" target="17" />
+      <module name="mall-search" target="17" />
+      <module name="mall-security" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="sugou" options="-parameters -parameters" />
+      <module name="sugou-admin" options="-parameters -parameters" />
+      <module name="sugou-common" options="-parameters -parameters" />
+      <module name="sugou-demo" options="-parameters -parameters" />
+      <module name="sugou-gateway" options="-parameters -parameters" />
+      <module name="sugou-mbg" options="-parameters -parameters" />
+      <module name="sugou-portal" options="-parameters -parameters" />
+      <module name="sugou-search" options="-parameters -parameters" />
+      <module name="sugou-security" options="-parameters -parameters" />
+    </option>
+  </component>
+</project>

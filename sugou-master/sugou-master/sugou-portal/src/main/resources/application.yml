@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: sugou-portal
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+mybatis:
+  mapper-locations:
+    - classpath:dao/*.xml
+    - classpath*:com/**/mapper/*.xml
+
+jwt:
+  tokenHeader: Authorization
+  secret: sugou-portal-secret
+  expiration: 604800
+  tokenHead: 'Bearer '
+
+secure:
+  ignored:
+    urls:
+      - /swagger-ui/
+      - /v3/api-docs/*
+      - /*/*.html
+      - /*/*.js
+      - /*/*.css
+      - /*/*.png
+      - /favicon.ico
+      - /actuator/**
+      - /druid/**
+      - /sso/**
+      - /home/**
+      - /product/**
+      - /brand/**
+      - /alipay/**
+      - /ai/**
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    doc-expansion: 'none'
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  group-configs:
+    - group: 'sugou-portal'
+      packages-to-scan: com.macro.mall.portal.controller
+
+redis:
+  database: sugou
+  key:
+    authCode: 'ums:authCode'
+    orderId: 'oms:orderId'
+    member: 'ums:member'
+    product: 'pms:product'
+  expire:
+    authCode: 90
+    common: 86400
+    product: 86400
+
+mongo:
+  insert:
+    sqlEnable: true
+
+rabbitmq:
+  queue:
+    name:
+      cancelOrder: cancelOrderQueue

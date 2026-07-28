@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: sugou-gateway
+  data:
+    redis:
+      host: localhost
+      timeout: 300ms
+      password: 123159
+      database: 0
+      port: 6379
+
+server:
+  port: 8088
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.macro.mall.gateway: INFO
+
+secure:
+  ignore:
+    urls:
+      - /ai/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /druid/**
+      - /actuator/**
+      - /sso/**

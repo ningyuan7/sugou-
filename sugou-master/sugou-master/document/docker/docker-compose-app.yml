@@ -1,0 +1,43 @@
+version: '3'
+services:
+  sugou-admin:
+    image: mall/sugou-admin:1.0-SNAPSHOT
+    container_name: sugou-admin
+    ports:
+      - 8080:8080
+    volumes:
+      - /mydata/app/sugou-admin/logs:/var/logs
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+    external_links:
+      - mysql:db #可以用db这个域名访问mysql服务
+  sugou-search:
+    image: mall/sugou-search:1.0-SNAPSHOT
+    container_name: sugou-search
+    ports:
+      - 8081:8081
+    volumes:
+      - /mydata/app/sugou-search/logs:/var/logs
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+    external_links:
+      - elasticsearch:es #可以用es这个域名访问elasticsearch服务
+      - mysql:db #可以用db这个域名访问mysql服务
+  sugou-portal:
+    image: mall/sugou-portal:1.0-SNAPSHOT
+    container_name: sugou-portal
+    ports:
+      - 8085:8085
+    volumes:
+      - /mydata/app/sugou-portal/logs:/var/logs
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mongo:mongo #可以用mongo这个域名访问mongo服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - rabbitmq:rabbit #可以用rabbit这个域名访问rabbitmq服务
+

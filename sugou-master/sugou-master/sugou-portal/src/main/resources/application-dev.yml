@@ -1,0 +1,132 @@
+server:
+  port: 8086
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sugou?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123159
+    druid:
+      initial-size: 5
+      min-idle: 10
+      max-active: 20
+      web-stat-filter:
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        login-username: druid
+        login-password: druid
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: sugou-port
+    redis:
+      host: localhost
+      database: 0
+      port: 6379
+      password: 123159
+      timeout: 300ms
+  rabbitmq:
+      host: 192.168.100.212
+      port: 5672
+      virtual-host: /
+      username: itheima
+      password: 123321
+      listener:
+        simple:
+          acknowledge-mode: manual
+          prefetch: 1
+          retry:
+            enabled: false
+
+logging:
+  level:
+    root: info
+    com.macro.mall: debug
+
+logstash:
+  host: localhost
+  enableInnerLog: false
+
+alipay:
+  gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+  appId: your appId
+  alipayPublicKey: your alipayPublicKey
+  appPrivateKey: your appPrivateKey
+  returnUrl: http://localhost:8060/#/pages/money/paySuccess
+  notifyUrl:
+
+# ==================== AI 导购服务配置 ====================
+ai:
+  guide:
+    base-url: http://localhost:8000
+    connect-timeout: 5s
+    read-timeout: 60s
+    chat:
+      endpoint: /api/v1/chat
+      stream-endpoint: /api/v1/chat/stream
+
+# ==================== Resilience4j 熔断降级配置 ====================
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        # 滑动窗口大小（次数）
+        sliding-window-size: 10
+        # 最小调用次数（低于此数不触发熔断判断）
+        minimum-number-of-calls: 5
+        # 失败率阈值（%）
+        failure-rate-threshold: 50
+        # 熔断开启后的等待时间（秒）
+        wait-duration-in-open-state: 30s
+        # 半开状态允许的调用次数
+        permitted-number-of-calls-in-half-open-state: 3
+        # 慢调用阈值（秒）
+        slow-call-duration-threshold: 30s
+        # 慢调用率阈值（%）
+        slow-call-rate-threshold: 60
+        # 是否自动从半开转到关闭
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      ai-guide-chat:
+        base-config: default
+      ai-guide-stream:
+        base-config: default
+        # 流式场景更敏感，更快熔断
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 65s
+        cancel-running-future: true
+    instances:
+      ai-guide-chat:
+        timeout-duration: 65s
+      ai-guide-stream:
+        timeout-duration: 120s
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.ResourceAccessException
+    instances:
+      ai-guide-chat:
+        base-config: default
+
+# Actuator 暴露 circuit breaker 端点用于监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,circuitbreakerevents,metrics
+  endpoint:
+    circuitbreakers:
+      enabled: true
+    circuitbreakerevents:
+      enabled: true
+
