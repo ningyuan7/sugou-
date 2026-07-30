@@ -2,6 +2,7 @@ package com.macro.mall.portal.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.macro.mall.common.api.CommonPage;
 import com.macro.mall.common.exception.Asserts;
@@ -70,6 +71,15 @@ public class OmsPortalOrderServiceImpl implements OmsPortalOrderService {
     @Autowired
     private CancelOrderSender cancelOrderSender;
 
+    /**
+     * 下单幂等Token Redis Key前缀
+     */
+    private static final String IDEMPOTENT_ORDER_PREFIX = "idempotent:order:";
+    /**
+     * Token有效期（秒），5分钟
+     */
+    private static final long IDEMPOTENT_EXPIRE = 300;
+
     @Override
     public ConfirmOrderResult generateConfirmOrder(List<Long> cartIds) {
         ConfirmOrderResult result = new ConfirmOrderResult();
@@ -96,6 +106,19 @@ public class OmsPortalOrderServiceImpl implements OmsPortalOrderService {
 
     @Override
     public Map<String, Object> generateOrder(OrderParam orderParam) {
+        // ============ 幂等性校验：防止重复提交订单 ============
+        String idempotentToken = orderParam.getIdempotentToken();
+        if (StrUtil.isEmpty(idempotentToken)) {
+            Asserts.fail("缺少幂等Token，请先获取下单Token");
+        }
+        UmsMember currentMemberForCheck = memberService.getCurrentMember();
+        String idempotentKey = IDEMPOTENT_ORDER_PREFIX + currentMemberForCheck.getId() + ":" + idempotentToken;
+        // setIfAbsent 返回 false 说明该 Token 已被消费（重复提交）
+        Boolean isFirstTime = redisService.setIfAbsent(idempotentKey, "1", IDEMPOTENT_EXPIRE);
+        if (Boolean.FALSE.equals(isFirstTime)) {
+            Asserts.fail("请勿重复提交订单");
+        }
+
         List<OmsOrderItem> orderItemList = new ArrayList<>();
         //校验收货地址
         if(orderParam.getMemberReceiveAddressId()==null){
@@ -435,6 +458,17 @@ public class OmsPortalOrderServiceImpl implements OmsPortalOrderService {
             OmsOrder order = orderList.get(0);
             paySuccess(order.getId(),payType);
         }
+    }
+
+    @Override
+    public String getIdempotentToken() {
+        UmsMember currentMember = memberService.getCurrentMember();
+        // 生成 UUID 作为幂等 Token
+        String token = UUID.randomUUID().toString().replace("-", "");
+        // 存入 Redis，Key = idempotent:order:{memberId}:{token}，有效期 5 分钟
+        String key = IDEMPOTENT_ORDER_PREFIX + currentMember.getId() + ":" + token;
+        redisService.set(key, "0", IDEMPOTENT_EXPIRE);
+        return token;
     }
 
     /**

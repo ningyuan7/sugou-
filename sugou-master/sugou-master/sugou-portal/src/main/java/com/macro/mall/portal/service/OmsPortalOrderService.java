@@ -73,4 +73,11 @@ public interface OmsPortalOrderService {
      */
     @Transactional
     void paySuccessByOrderSn(String orderSn, Integer payType);
+
+    /**
+     * 获取下单幂等Token
+     * 前端下单前先调用此接口获取Token，提交订单时携带该Token防止重复提交
+     * Token有效期5分钟，过期自动清理
+     */
+    String getIdempotentToken();
 }

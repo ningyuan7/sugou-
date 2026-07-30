@@ -37,6 +37,14 @@ public class OmsPortalOrderController {
         return CommonResult.success(confirmOrderResult);
     }
 
+    @Operation(summary = "获取下单幂等Token，防止重复提交订单")
+    @RequestMapping(value = "/getIdempotentToken", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult<String> getIdempotentToken() {
+        String token = portalOrderService.getIdempotentToken();
+        return CommonResult.success(token);
+    }
+
     @Operation(summary = "根据购物车信息生成订单")
     @RequestMapping(value = "/generateOrder", method = RequestMethod.POST)
     @ResponseBody
